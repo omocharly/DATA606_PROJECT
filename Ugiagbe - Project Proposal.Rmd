@@ -1,0 +1,215 @@
+---
+title: "DATA606 DATA PROJECT PROPOSAL"
+output:
+  pdf_document:
+  html_document:
+    theme: cerulean
+    toc: yes
+    toc_float: yes
+---
+
+### Title: CUNY SPS MDS DATA606_Project Proposal"
+### Author: Charles Ugiagbe
+### Date: 11/6/2021
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+##        Data Preparation
+
+
+###   Load required libraries:
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(patchwork)
+library(ggforce)
+library(statsr)
+```
+
+###   load data from Github
+
+```{r}
+url <- "https://raw.githubusercontent.com/omocharly/DATA606_PROJECT/main/insurance.csv"
+insurance <- read.csv(url)
+```
+
+
+###   Take a look at the head of the data
+
+```{r}
+head(insurance)
+```
+
+## Take a glimpse look at the dataset
+
+Dataset has 7 variable and 1338 Observation
+```{r}
+glimpse(insurance)
+```
+
+##    Research question
+
+
+
+<style>
+div.aquamarine { background-color:#d9eff9; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+This project aims to:
+
+1. *Determine if the mean insurance charges of male individuals in the dataset is significantly different from the mean charges of female*
+
+2. *Determine if the mean insurance charges of Smokers in the dataset is different from the mean charges of Non - smokers* 
+
+3. *Formulate a multiple Regression model or predicting the insurance charges of individuals*
+</div> \hfill\break
+
+
+
+###   Cases
+
+<style>
+div.aquamarine { background-color:#d9eff9; border-radius: 10px; padding: 5px;}
+</style>
+<div class = "aquamarine">
+
+There are 7 variables and 1338 observations in the dataset. six(6) of the Variable in the dataset are potential predictor of the of the 7th variables (Insurance charges). There are no missing value in any of the observation.
+Each observation represents the likely variable that play vital roles in determining the insurance charge 
+
+</div> \hfill\break
+
+###    Data collection
+
+This dataset was downloaded from [kaggle](https://www.kaggle.com/mirichoi0218/insurance) and then uploaded to my github repository. The data can be accessed directly from the repository at [Github](https://github.com/omocharly/DATA606_PROJECT/blob/main/insurance.csv)
+
+
+###    Type of study
+
+This is an observational study as there is no control group.
+
+
+###    Data Source
+
+Data is from kaggle public datasets and can be found online here: https://www.kaggle.com/mirichoi0218/insurance
+
+
+###    Response Variable (Dependent Variable)
+
+The Dependent variable is the Insurance Charges and its numerical
+
+
+###    Predictor Variables (Independent Variables)
+
+There are six(6) independent used. They independent variables are: Age(numeric), sex(numeric), BMI(numeric), Children(numeric), Smoker(categorical), Region(categorical)
+
+
+##      Relevant Summary Statistics
+
+```{r}
+summary(insurance)
+```
+
+
+##    Visualizations and Exploratory data analysis
+
+```{r}
+plot1<-ggplot(insurance, aes(x=age))+
+geom_histogram(color="black", fill="purple", bins=10)+
+labs(title="Historam of Age Distribution")+
+theme(plot.title = element_text(size=14))
+plot1
+```
+
+
+```{r}
+plot2<-ggplot(insurance, aes(x=smoker, y=age, color=smoker)) +
+geom_boxplot()+
+scale_color_manual(values=c('green', "violet"))+
+labs(title="Age Distribution by smoker")+
+theme(plot.title = element_text(size=14))
+plot2
+```
+
+
+```{r}
+p1<-ggplot(insurance, aes(x=charges))+
+geom_histogram(color="black", fill="mediumorchid1", bins=40)+
+geom_vline(aes(xintercept= 13270), color="blue", linetype="dashed", size=1)+
+geom_vline(aes(xintercept= 9382), color="red", linetype="dashed", size=1)+
+annotate("text", x= 20000, y=110, size=2, label="Mean=13270", color="blue")+
+annotate("text", x= 20000, y=120, size=2, label="Median=9382", color="red")
+
+
+p2<-ggplot(insurance, aes(x=sex, y=charges)) +
+geom_boxplot(fill="mediumorchid1")+
+stat_summary(fun=mean, geom="point", color="blue")+
+coord_flip()
+
+
+p3<-ggplot(insurance, aes(x=smoker, y=charges)) +
+geom_boxplot(fill="mediumorchid1")+
+stat_summary(fun=mean, geom="point", color="blue")+
+coord_flip()
+
+p4<-ggplot(insurance, aes(x=region, y=charges)) +
+geom_boxplot(fill="mediumorchid1")+
+stat_summary(fun=mean, geom="point", color="blue")+
+coord_flip()
+
+
+
+options(repr.plot.width=9, repr.plot.height=20)
+layout<-" 
+ABB
+CDD"
+p1 + p2 + p3 + p4 + plot_layout(design = layout)+
+plot_annotation(title="Charges Distribution", 
+                theme = theme(plot.title = element_text(size = 28, hjust = 0.5)))
+```
+
+
+```{r}
+### age, charges, sex
+plot3<-ggplot(insurance, aes(x=sex, y=age, color=sex)) +
+geom_sina()+
+scale_color_manual(values=c('hotpink', "royalblue"))+
+labs(title="Age Distribution by sex")+
+theme(plot.title = element_text(size=14))
+
+plot4<-ggplot(insurance, aes(x=age, y=charges, color= sex))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('hotpink', "royalblue"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="Age x Charges by sex")+
+theme(plot.title = element_text(size=14))
+
+### age, charges, smoker
+plot5<-ggplot(insurance, aes(x=smoker, y=age, color=smoker)) +
+geom_sina()+
+scale_color_manual(values=c('grey', "brown"))+
+labs(title="Age Distribution by smoker")+
+theme(plot.title = element_text(size=14))
+
+plot6<-ggplot(insurance, aes(x=age, y=charges, color= smoker))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('brown', "grey"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="Age x Charges by smoker")+
+theme(plot.title = element_text(size=14))
+
+
+options(repr.plot.width=10, repr.plot.height=35)
+layout<-" 
+ABB
+CDD"
+plot3 + plot4 + plot5 + plot6 + plot_layout(design = layout)
+```
+
